@@ -1,4 +1,16 @@
-import React, { useState } from "react";
+import React, { useState , useEffect } from "react";
+
+/* hypothesis for state not changing
+concept: closure => fn within a fn ;  the inner fn ref a variable that was declared in the outer fn
+var in the outer fn will be maintained in mem, even after inner fn returned and is called off the stack 
+inner fn has access to state from outer fn at the time it was created 
+
+look into react and pure functions 
+it appears that the state isn't modified as a pure fun since it's a fn within fn mutating the global state var 
+https://beta.reactjs.org/learn/keeping-components-pure
+
+
+*/
 
 const rowStyle = {
   display: "flex",
@@ -83,7 +95,6 @@ const buttonStyle = {
 
 function Board() {
   //r = row ; c = column
-  const [isKing, setIsKing] = useState(false);
   const [board, setBoard] = useState([
     [
       <Box type={1} r={0} c={0} />,
@@ -110,6 +121,7 @@ function Board() {
 
     //copy of type to be carried to fn (type prior to assignment)
     let typeBox = type;
+    let isKing = false
     if (type === 1) {
       type = squareStyle;
     } else if (type === 2) {
@@ -117,6 +129,11 @@ function Board() {
     } else if (type === 3) {
       type = redChecker;
     }
+
+    if (r === 1 && c === 1){
+      isKing = true
+    }
+
     return (
       <div
         className="square"
@@ -124,21 +141,20 @@ function Board() {
         r={r}
         c={c}
         disabled={disabled}
-        onClick={() => ClickChecker(r, c, typeBox, temp)}
+        onClick={() => ClickChecker(r, c, typeBox, temp, isKing)}
       ></div>
     );
   }
   //hardcopy of board, don't put it into a parameter to a function
 
-  function ClickChecker(r, c, typeBox, temp) {
-
+  function ClickChecker(r, c, typeBox, temp, isKing) {
     //typebox is type of box : 1 => nonActive ; 2 => active ; 3 => checker
     //r is row
     //c is column
-    console.log("r", r);
-    console.log("c", c);
-    console.log("typeBox", typeBox);
-    console.log("isKing", isKing)
+    console.log("r ", r);
+    console.log("c ", c);
+    console.log("typeBox ", typeBox);
+    console.log("isKing " , isKing)
 
     //clicking on empty box does nothing
     if (typeBox === 1) {
@@ -147,28 +163,27 @@ function Board() {
 
     //experimented: realized that needed seperate return statements
     //or would render the initial board from useState instead
-    if (typeBox === 3 && isKing === true) {
-      console.log("king");
-      if (r===0 && c===2){
-        setBoard(temp => [...temp, temp[1][1] = <Box type={2} r={1} c={1} />])
-      }
-    }
-
-    if (typeBox === 3 && isKing === false) {
+    if (typeBox === 3 && isKing=== false) {
       if (r === 2 && c === 0) {
         temp[1][1] = <Box type={2} r={1} c={1} />;
         return setBoard(temp);
       } else if (r === 1 && c === 1) {
-        setIsKing(true);
-        // setBoard(temp) doesn't work
         setBoard((temp) => [
           ...temp,
           (temp[1][1] = <Box type={3} r={1} c={1} />),
           (temp[0][0] = <Box type={2} r={0} c={0} />),
           (temp[0][2] = <Box type={2} r={0} c={2} />),
         ]);
-        
         return 
+      } else {
+        setBoard(temp => [...temp, (temp[1][1] = <Box type={2} r={1} c={1} />)])
+      }
+    } else if (typeBox === 3 && isKing === true) {
+      console.log("king");
+      if (r===1 && c===1){
+        setBoard(temp => [...temp, temp[0][0] = <Box type={2} r={0} c={0} />, temp[0][2] = <Box type={2} r={0} c={2} />, temp[2][0] = <Box type={2} r={2} c={0} />, temp[2][2] = <Box type={2} r={2} c={2 } />])
+      } else {
+        setBoard(temp => [...temp, temp[1][1] = <Box type={2} r={1} c={1} />])
       }
     }
 
@@ -182,8 +197,7 @@ function Board() {
         }
       }
       temp[r][c] = <Box type={3} r={r} c={c} />;
-      if (temp[0][0].props.type===2 || temp[0][2].props.type===2){
-        setIsKing(true)
+      if (temp[1][1].props.type===2){
         setBoard(temp)
         return 
       }
@@ -193,8 +207,7 @@ function Board() {
   }
 
   function Reset() {
-    console.log(board);
-    console.log("isKing" , isKing);
+
   }
 
   return (
