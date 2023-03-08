@@ -4,6 +4,7 @@ import React, { useState , useRef } from "react";
 this modification will prove that both pc and laptop are in sync
 
 this write up is from laptop. if visible, then sync is complete
+this is from the PC. if visible from laptop, then git push/pull works
 
 Something to find out:
 initially had const[king, setKing] = useState(false)
