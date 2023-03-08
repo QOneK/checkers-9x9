@@ -1,6 +1,8 @@
 import React, { useState , useRef } from "react";
 
 /* 
+this modification will prove that both pc and laptop are in sync
+
 Something to find out:
 initially had const[king, setKing] = useState(false)
 => becomes true when reaches top row (r===0)
